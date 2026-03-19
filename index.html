@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOIDBET</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <div class="logo">VOIDBET</div>
+                <div class="online-counter">🟢 <span id="online-players">1245</span> онлайн</div>
+            </div>
+            <div class="header-right flex-col" style="align-items: flex-end;">
+                <div class="jackpot-display pulse-anim-text">
+                    ДЖЕКПОТ: <span id="global-jackpot-val">12450</span> ₽
+                </div>
+                <div class="flex-row mt-5">
+                    <button class="btn btn-warning" onclick="openSpinModal()" style="padding: 6px 10px; font-size: 16px;">🎡</button>
+                    <div class="balance-pill">
+                        <span id="nav-balance">1000</span> <span class="currency">₽</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <section id="home" class="page active">
+                <div class="card profile-summary highlight-card">
+                    <div class="flex-row" style="justify-content: space-between; margin-bottom: 10px;">
+                        <h2 id="home-greeting">Привет, Игрок!</h2>
+                        <span class="rank-badge" id="header-rank">Bronze</span>
+                    </div>
+                    <div class="level-container">
+                        <div class="level-info">
+                            <span class="level-badge" id="header-level">Ур. 1</span>
+                            <span id="home-next-level">До след. ур: 100 XP</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" id="xp-progress"></div></div>
+                    </div>
+                </div>
+
+                <button id="btn-daily-bonus" class="btn btn-success w-100 btn-large pulse-anim mb-15" onclick="claimDailyBonus()">🎁 Забрать бонус</button>
+
+                <h3 class="section-subtitle text-warning">🏆 Крупные заносы</h3>
+                <div class="card p-0 mb-15">
+                    <div class="fake-wins-marquee" id="fake-wins-container"></div>
+                </div>
+
+                <h3 class="section-subtitle">Чат Игроков</h3>
+                <div class="card chat-container" id="chat-box"></div>
+            </section>
+
+            <section id="crash" class="page">
+                <h2 class="section-title">Crash</h2>
+                <div class="card crash-card">
+                    <div id="crash-history" class="crash-history-container"></div>
+                    
+                    <div class="game-display crash-display">
+                        <div class="crash-text" id="crash-multiplier">1.00x</div>
+                        <div class="crash-status" id="crash-status">Ожидание ставки...</div>
+                        <div class="crash-graph-line" id="crash-line"></div>
+                    </div>
+                    
+                    <div class="grid-2 mb-10">
+                        <input type="number" id="crash-bet" placeholder="Ставка (₽)" min="1">
+                        <input type="number" id="crash-auto" placeholder="Автовывод (x)" min="1.01" step="0.01">
+                    </div>
+
+                    <div class="bet-presets mb-15">
+                        <button onclick="setPreset('crash-bet', 10)">10</button>
+                        <button onclick="setPreset('crash-bet', 50)">50</button>
+                        <button onclick="setPreset('crash-bet', 100)">100</button>
+                        <button onclick="setPreset('crash-bet', 500)">500</button>
+                        <button onclick="setPreset('crash-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-large" id="btn-crash-start" onclick="startCrash()">🚀 Старт</button>
+                        <button class="btn btn-success btn-large" id="btn-crash-cashout" onclick="cashoutCrash()" disabled>💰 Забрать</button>
+                    </div>
+                </div>
+
+                <h3 class="section-subtitle">Ставки игроков</h3>
+                <div class="card p-0">
+                    <ul class="list-view bot-bets" id="crash-bots">
+                        <li class="text-muted text-center" style="padding: 10px;">Ставок пока нет</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="casino" class="page">
+                <h2 class="section-title">Казино</h2>
+                <div id="casino-msg" class="msg-box"></div>
+                
+                <div class="card game-card">
+                    <h3>Мины</h3>
+                    <div class="mines-info flex-row mb-10" style="justify-content: space-between;">
+                        <span>Множитель: <strong id="mines-mult" class="text-primary">1.00x</strong></span>
+                        <span>Мин: <strong>3</strong></span>
+                    </div>
+                    <div class="mines-grid" id="mines-grid"></div>
+                    
+                    <input type="number" id="mines-bet" placeholder="Сумма ставки" min="1" class="mt-15">
+                    <div class="bet-presets mb-15">
+                        <button onclick="setPreset('mines-bet', 10)">10</button>
+                        <button onclick="setPreset('mines-bet', 100)">100</button>
+                        <button onclick="setPreset('mines-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="btn-mines-start" onclick="startMines()">Начать игру</button>
+                        <button class="btn btn-success pulse-anim" id="btn-mines-cashout" onclick="cashoutMines()" style="display:none;">Забрать</button>
+                    </div>
+                </div>
+
+                <div class="card game-card">
+                    <h3>Орел или Решка</h3>
+                    <div class="game-display" id="coin-result">?</div>
+                    <input type="number" id="coin-bet" placeholder="Сумма ставки" min="1">
+                    <div class="bet-presets mb-15">
+                        <button onclick="setPreset('coin-bet', 50)">50</button>
+                        <button onclick="setPreset('coin-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="playCoinflip('heads')">Орел (2x)</button>
+                        <button class="btn btn-danger" onclick="playCoinflip('tails')">Решка (2x)</button>
+                    </div>
+                </div>
+
+                <div class="card game-card">
+                    <h3>Кости (Dice)</h3>
+                    <div class="game-display" id="dice-result">0</div>
+                    <p class="text-muted text-center" style="margin-bottom: 10px; font-size: 12px;">Победа при броске 4, 5 или 6</p>
+                    <input type="number" id="dice-bet" placeholder="Сумма ставки" min="1">
+                    <button class="btn btn-primary w-100 mt-10" onclick="playDice()">Бросить (2x)</button>
+                </div>
+
+                <div class="card game-card">
+                    <h3>Рулетка</h3>
+                    <div class="game-display" id="roulette-result">--</div>
+                    <input type="number" id="roulette-bet" placeholder="Сумма ставки" min="1">
+                    <div class="btn-group mt-10">
+                        <button class="btn btn-danger" onclick="playRoulette('red')">Красное (2x)</button>
+                        <button class="btn btn-dark-btn" onclick="playRoulette('black')">Черное (2x)</button>
+                        <button class="btn btn-success" onclick="playRoulette('green')">Зеро (14x)</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="stats" class="page">
+                <h2 class="section-title">Топ & Статистика</h2>
+                
+                <div class="card p-0 mb-15">
+                    <div style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700;">🏆 Таблица лидеров</div>
+                    <ul class="list-view" id="leaderboard-list"></ul>
+                </div>
+
+                <div class="grid-2 mb-15">
+                    <div class="card stat-box">
+                        <div class="stat-title">Победы</div>
+                        <div class="stat-value text-success" id="stat-wins">0</div>
+                    </div>
+                    <div class="stat-box card">
+                        <div class="stat-title">Поражения</div>
+                        <div class="stat-value text-danger" id="stat-losses">0</div>
+                    </div>
+                    <div class="stat-box card">
+                        <div class="stat-title">Всего ставок</div>
+                        <div class="stat-value text-primary" id="stat-bets">0</div>
+                    </div>
+                    <div class="stat-box card">
+                        <div class="stat-title">Макс. выигрыш</div>
+                        <div class="stat-value text-warning" id="stat-big-win">0 ₽</div>
+                    </div>
+                </div>
+
+                <h3 class="section-subtitle">История (последние 10)</h3>
+                <div class="card p-0 mb-15">
+                    <ul class="list-view history-list" id="history-list"></ul>
+                </div>
+            </section>
+
+            <section id="profile" class="page">
+                <h2 class="section-title">Настройки</h2>
+                
+                <div class="card mb-15">
+                    <h3 class="section-subtitle mt-0">Профиль</h3>
+                    <div class="input-group">
+                        <label class="text-muted">Никнейм:</label>
+                        <div class="flex-row mt-10">
+                            <input type="text" id="profile-name" style="margin-bottom:0;">
+                            <button class="btn btn-primary" onclick="updateUsername()">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-15">
+                    <h3 class="section-subtitle mt-0">Система</h3>
+                    <div class="flex-row" style="justify-content: space-between; margin-bottom: 15px;">
+                        <span>Звуковые эффекты</span>
+                        <label class="switch">
+                            <input type="checkbox" id="setting-sound" onchange="toggleSound()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <button class="btn btn-danger w-100 btn-outline mt-10" onclick="resetAccount()">Сбросить аккаунт</button>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-target="home"><div class="nav-icon">🏠</div><span>Главная</span></div>
+            <div class="nav-item" data-target="crash"><div class="nav-icon">🚀</div><span>Crash</span></div>
+            <div class="nav-item" data-target="casino"><div class="nav-icon">🎰</div><span>Казино</span></div>
+            <div class="nav-item" data-target="stats"><div class="nav-icon">📊</div><span>Стата</span></div>
+            <div class="nav-item" data-target="profile"><div class="nav-icon">⚙️</div><span>Профиль</span></div>
+        </nav>
+    </div>
+
+    <div id="big-win-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title pulse-anim-text">🎉 БОЛЬШОЙ ВЫИГРЫШ! 🎉</div>
+            <div class="modal-amount" id="modal-win-amount">0 ₽</div>
+            <p class="text-muted mt-10" id="modal-win-desc"></p>
+            <button class="btn btn-primary w-100 mt-15" onclick="closeModal('big-win-modal')">Забрать</button>
+        </div>
+    </div>
+
+    <div id="lucky-spin-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="modal-title text-warning mb-10">🎡 Колесо Фортуны</div>
+            <p class="text-muted mb-15" style="font-size:13px;">Крути раз в 24 часа и получай призы!</p>
+            <div class="game-display" id="spin-result" style="font-size: 32px;">🎁</div>
+            <button class="btn btn-warning w-100 mt-15" id="btn-spin" onclick="spinWheel()">Крутить!</button>
+            <button class="btn btn-dark-btn w-100 mt-10" onclick="closeModal('lucky-spin-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <div id="win-anim-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
