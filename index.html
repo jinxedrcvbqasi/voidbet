@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VOIDBET</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
+        <!-- ══════════════ HEADER ══════════════ -->
         <header>
             <div class="header-left">
-                <div class="logo">VOIDBET</div>
+                <div class="logo">VOID<span class="logo-accent">BET</span></div>
                 <div class="online-counter">🟢 <span id="online-players">1245</span> онлайн</div>
             </div>
             <div class="header-right flex-col" style="align-items: flex-end;">
@@ -19,7 +20,7 @@
                     ДЖЕКПОТ: <span id="global-jackpot-val">12450</span> ₽
                 </div>
                 <div class="flex-row mt-5">
-                    <button class="btn btn-warning" onclick="openSpinModal()" style="padding: 6px 10px; font-size: 16px;">🎡</button>
+                    <button class="btn btn-warning icon-btn" onclick="openSpinModal()" title="Колесо Фортуны">🎡</button>
                     <div class="balance-pill">
                         <span id="nav-balance">1000</span> <span class="currency">₽</span>
                     </div>
@@ -27,7 +28,10 @@
             </div>
         </header>
 
+        <!-- ══════════════ MAIN CONTENT ══════════════ -->
         <main id="main-content">
+
+            <!-- ─── HOME PAGE ─── -->
             <section id="home" class="page active">
                 <div class="card profile-summary highlight-card">
                     <div class="flex-row" style="justify-content: space-between; margin-bottom: 10px;">
@@ -41,9 +45,20 @@
                         </div>
                         <div class="progress-bar"><div class="progress-fill" id="xp-progress"></div></div>
                     </div>
+                    <!-- Rakeback indicator -->
+                    <div class="rakeback-mini flex-row mt-10" style="justify-content: space-between;">
+                        <span class="text-muted" style="font-size:12px;">💰 Ребэк: <span id="home-rakeback-claimable" class="text-warning">0</span> ₽</span>
+                        <button class="btn-link text-warning" onclick="claimRakeback()" style="font-size:12px;">Забрать</button>
+                    </div>
                 </div>
 
-                <button id="btn-daily-bonus" class="btn btn-success w-100 btn-large pulse-anim mb-15" onclick="claimDailyBonus()">🎁 Забрать бонус</button>
+                <button id="btn-daily-bonus" class="btn btn-success w-100 btn-large pulse-anim mb-15" onclick="claimDailyBonus()">🎁 Забрать ежедневный бонус</button>
+
+                <!-- Daily Quests -->
+                <h3 class="section-subtitle text-warning">📋 Ежедневные задания</h3>
+                <div class="card p-0 mb-15">
+                    <div id="quests-list"></div>
+                </div>
 
                 <h3 class="section-subtitle text-warning">🏆 Крупные заносы</h3>
                 <div class="card p-0 mb-15">
@@ -54,18 +69,26 @@
                 <div class="card chat-container" id="chat-box"></div>
             </section>
 
+            <!-- ─── CRASH PAGE ─── -->
             <section id="crash" class="page">
-                <h2 class="section-title">Crash</h2>
+                <h2 class="section-title">🚀 Crash</h2>
                 <div class="card crash-card">
                     <div id="crash-history" class="crash-history-container"></div>
-                    
-                    <div class="game-display crash-display">
-                        <div class="crash-text" id="crash-multiplier">1.00x</div>
-                        <div class="crash-status" id="crash-status">Ожидание ставки...</div>
-                        <div class="crash-graph-line" id="crash-line"></div>
+
+                    <!-- Canvas-based crash graph -->
+                    <div class="crash-graph-wrapper" id="crash-graph-wrapper">
+                        <canvas id="crash-canvas"></canvas>
+                        <div class="crash-overlay">
+                            <div class="crash-text" id="crash-multiplier">1.00x</div>
+                            <div class="crash-status" id="crash-status">Ожидание ставки...</div>
+                        </div>
+                        <!-- Lucky Event Button (hidden by default) -->
+                        <button id="lucky-event-btn" class="lucky-event-btn" onclick="claimLuckyEvent()" style="display:none;">⭐</button>
+                        <!-- Ghost player markers on graph -->
+                        <div id="ghost-players-layer" class="ghost-players-layer"></div>
                     </div>
-                    
-                    <div class="grid-2 mb-10">
+
+                    <div class="grid-2 mb-10 mt-10">
                         <input type="number" id="crash-bet" placeholder="Ставка (₽)" min="1">
                         <input type="number" id="crash-auto" placeholder="Автовывод (x)" min="1.01" step="0.01">
                     </div>
@@ -77,7 +100,7 @@
                         <button onclick="setPreset('crash-bet', 500)">500</button>
                         <button onclick="setPreset('crash-bet', 'max')" class="text-warning">MAX</button>
                     </div>
-                    
+
                     <div class="btn-group">
                         <button class="btn btn-primary btn-large" id="btn-crash-start" onclick="startCrash()">🚀 Старт</button>
                         <button class="btn btn-success btn-large" id="btn-crash-cashout" onclick="cashoutCrash()" disabled>💰 Забрать</button>
@@ -92,53 +115,142 @@
                 </div>
             </section>
 
+            <!-- ─── CASINO PAGE ─── -->
             <section id="casino" class="page">
-                <h2 class="section-title">Казино</h2>
+                <h2 class="section-title">🎰 Казино</h2>
                 <div id="casino-msg" class="msg-box"></div>
-                
+
+                <!-- HiLo -->
+                <div class="card game-card highlight-card">
+                    <div class="game-header"><h3>HiLo</h3><span class="game-badge new-badge">HOT</span></div>
+                    <div class="flex-row mb-10" style="justify-content: space-between;">
+                        <span>Множитель: <strong id="hilo-mult" class="text-primary">1.00x</strong></span>
+                    </div>
+                    <div class="hilo-card-display" id="hilo-card-display">?</div>
+                    <input type="number" id="hilo-bet" placeholder="Сумма ставки" min="1" class="mt-15">
+                    <div class="bet-presets mb-15" id="hilo-presets">
+                        <button onclick="setPreset('hilo-bet', 10)">10</button>
+                        <button onclick="setPreset('hilo-bet', 100)">100</button>
+                        <button onclick="setPreset('hilo-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+                    <button class="btn btn-primary w-100" id="btn-hilo-start" onclick="startHiLo()">Начать игру</button>
+                    <div class="btn-group mt-10" id="hilo-controls" style="display:none;">
+                        <button class="btn btn-danger" onclick="guessHiLo('lower')">Ниже ⬇</button>
+                        <button class="btn btn-success" onclick="guessHiLo('higher')">Выше ⬆</button>
+                    </div>
+                    <button class="btn btn-warning w-100 mt-10 pulse-anim" id="btn-hilo-cashout" style="display:none;" onclick="cashoutHiLo()">Забрать</button>
+                </div>
+
+                <!-- Mines (Enhanced) -->
                 <div class="card game-card">
-                    <h3>Мины</h3>
+                    <div class="game-header">
+                        <h3>Мины</h3>
+                        <span class="text-muted" style="font-size:12px;">Мин: <strong id="mines-count-display">3</strong></span>
+                    </div>
                     <div class="mines-info flex-row mb-10" style="justify-content: space-between;">
                         <span>Множитель: <strong id="mines-mult" class="text-primary">1.00x</strong></span>
-                        <span>Мин: <strong>3</strong></span>
+                        <span id="mines-pattern-hint" class="text-warning" style="font-size:11px;"></span>
                     </div>
                     <div class="mines-grid" id="mines-grid"></div>
-                    
-                    <input type="number" id="mines-bet" placeholder="Сумма ставки" min="1" class="mt-15">
+                    <div class="flex-row mb-10 mt-5" style="gap:10px; align-items:center;">
+                        <label class="text-muted" style="font-size:13px; white-space:nowrap;">Мины:</label>
+                        <input type="range" id="mines-count" min="1" max="10" value="3" style="flex:1;" oninput="document.getElementById('mines-count-display').innerText=this.value">
+                    </div>
+                    <input type="number" id="mines-bet" placeholder="Сумма ставки" min="1" class="mt-5">
                     <div class="bet-presets mb-15">
                         <button onclick="setPreset('mines-bet', 10)">10</button>
                         <button onclick="setPreset('mines-bet', 100)">100</button>
                         <button onclick="setPreset('mines-bet', 'max')" class="text-warning">MAX</button>
                     </div>
-
                     <div class="btn-group">
                         <button class="btn btn-primary" id="btn-mines-start" onclick="startMines()">Начать игру</button>
                         <button class="btn btn-success pulse-anim" id="btn-mines-cashout" onclick="cashoutMines()" style="display:none;">Забрать</button>
                     </div>
                 </div>
 
+                <!-- Keno (NEW) -->
+                <div class="card game-card">
+                    <div class="game-header"><h3>Keno</h3><span class="game-badge new-badge">NEW</span></div>
+                    <p class="text-muted mb-10" style="font-size:12px;">Выбери до 10 чисел (1–40). 20 шаров будут выбраны.</p>
+                    <div class="keno-grid" id="keno-grid"></div>
+                    <div class="keno-info flex-row mt-10 mb-10" style="justify-content:space-between;">
+                        <span class="text-muted" style="font-size:13px;">Выбрано: <strong id="keno-selected-count" class="text-primary">0</strong>/10</span>
+                        <span class="text-muted" style="font-size:13px;">Выигрыш: <strong id="keno-payout" class="text-success">0x</strong></span>
+                    </div>
+                    <input type="number" id="keno-bet" placeholder="Сумма ставки" min="1">
+                    <div class="bet-presets mb-15">
+                        <button onclick="setPreset('keno-bet', 10)">10</button>
+                        <button onclick="setPreset('keno-bet', 100)">100</button>
+                        <button onclick="setPreset('keno-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="btn-keno-play" onclick="playKeno()">🎱 Играть</button>
+                        <button class="btn btn-dark-btn" onclick="clearKenoSelection()">Сбросить</button>
+                    </div>
+                </div>
+
+                <!-- Video Poker (NEW) -->
+                <div class="card game-card">
+                    <div class="game-header"><h3>Video Poker</h3><span class="game-badge">Jacks or Better</span></div>
+                    <div class="poker-hand" id="poker-hand">
+                        <div class="poker-card empty" data-idx="0">?</div>
+                        <div class="poker-card empty" data-idx="1">?</div>
+                        <div class="poker-card empty" data-idx="2">?</div>
+                        <div class="poker-card empty" data-idx="3">?</div>
+                        <div class="poker-card empty" data-idx="4">?</div>
+                    </div>
+                    <div class="poker-held-row" id="poker-held-row">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div id="poker-result-label" class="poker-result-label text-center"></div>
+                    <input type="number" id="poker-bet" placeholder="Сумма ставки" min="1" class="mt-10">
+                    <div class="bet-presets mb-15">
+                        <button onclick="setPreset('poker-bet', 10)">10</button>
+                        <button onclick="setPreset('poker-bet', 100)">100</button>
+                        <button onclick="setPreset('poker-bet', 'max')" class="text-warning">MAX</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="btn-poker-deal" onclick="pokerAction()">🃏 Сдать карты</button>
+                    </div>
+                    <!-- Paytable -->
+                    <div class="poker-paytable mt-10">
+                        <div class="paytable-row"><span>Royal Flush</span><span class="text-warning">800x</span></div>
+                        <div class="paytable-row"><span>Straight Flush</span><span class="text-warning">50x</span></div>
+                        <div class="paytable-row"><span>Four of a Kind</span><span class="text-primary">25x</span></div>
+                        <div class="paytable-row"><span>Full House</span><span class="text-primary">9x</span></div>
+                        <div class="paytable-row"><span>Flush</span><span>6x</span></div>
+                        <div class="paytable-row"><span>Straight</span><span>4x</span></div>
+                        <div class="paytable-row"><span>Three of a Kind</span><span>3x</span></div>
+                        <div class="paytable-row"><span>Two Pair</span><span>2x</span></div>
+                        <div class="paytable-row"><span>Jacks or Better</span><span>1x</span></div>
+                    </div>
+                </div>
+
+                <!-- Coinflip -->
                 <div class="card game-card">
                     <h3>Орел или Решка</h3>
-                    <div class="game-display" id="coin-result">?</div>
+                    <div class="game-display coin-display" id="coin-result">?</div>
                     <input type="number" id="coin-bet" placeholder="Сумма ставки" min="1">
                     <div class="bet-presets mb-15">
                         <button onclick="setPreset('coin-bet', 50)">50</button>
                         <button onclick="setPreset('coin-bet', 'max')" class="text-warning">MAX</button>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-primary" onclick="playCoinflip('heads')">Орел (2x)</button>
-                        <button class="btn btn-danger" onclick="playCoinflip('tails')">Решка (2x)</button>
+                        <button class="btn btn-primary" onclick="playCoinflip('heads')">🦅 Орел (2x)</button>
+                        <button class="btn btn-danger" onclick="playCoinflip('tails')">🪙 Решка (2x)</button>
                     </div>
                 </div>
 
+                <!-- Dice -->
                 <div class="card game-card">
                     <h3>Кости (Dice)</h3>
-                    <div class="game-display" id="dice-result">0</div>
+                    <div class="game-display" id="dice-result">🎲</div>
                     <p class="text-muted text-center" style="margin-bottom: 10px; font-size: 12px;">Победа при броске 4, 5 или 6</p>
                     <input type="number" id="dice-bet" placeholder="Сумма ставки" min="1">
                     <button class="btn btn-primary w-100 mt-10" onclick="playDice()">Бросить (2x)</button>
                 </div>
 
+                <!-- Roulette -->
                 <div class="card game-card">
                     <h3>Рулетка</h3>
                     <div class="game-display" id="roulette-result">--</div>
@@ -151,31 +263,34 @@
                 </div>
             </section>
 
+            <!-- ─── STATS PAGE ─── -->
             <section id="stats" class="page">
-                <h2 class="section-title">Топ & Статистика</h2>
-                
+                <h2 class="section-title">📊 Топ & Статистика</h2>
+
                 <div class="card p-0 mb-15">
                     <div style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 700;">🏆 Таблица лидеров</div>
                     <ul class="list-view" id="leaderboard-list"></ul>
                 </div>
 
                 <div class="grid-2 mb-15">
-                    <div class="card stat-box">
-                        <div class="stat-title">Победы</div>
-                        <div class="stat-value text-success" id="stat-wins">0</div>
+                    <div class="card stat-box"><div class="stat-title">Победы</div><div class="stat-value text-success" id="stat-wins">0</div></div>
+                    <div class="stat-box card"><div class="stat-title">Поражения</div><div class="stat-value text-danger" id="stat-losses">0</div></div>
+                    <div class="stat-box card"><div class="stat-title">Всего ставок</div><div class="stat-value text-primary" id="stat-bets">0</div></div>
+                    <div class="stat-box card"><div class="stat-title">Макс. выигрыш</div><div class="stat-value text-warning" id="stat-big-win">0 ₽</div></div>
+                </div>
+
+                <!-- Rakeback Stats -->
+                <div class="card mb-15" style="border-left: 4px solid var(--warning-color);">
+                    <h3 class="section-subtitle mt-0 text-warning">💰 Ребэк (Rakeback 5%)</h3>
+                    <div class="flex-row" style="justify-content:space-between; margin-bottom:8px;">
+                        <span class="text-muted">Всего поставлено:</span>
+                        <span class="text-primary" id="stat-total-wagered">0 ₽</span>
                     </div>
-                    <div class="stat-box card">
-                        <div class="stat-title">Поражения</div>
-                        <div class="stat-value text-danger" id="stat-losses">0</div>
+                    <div class="flex-row" style="justify-content:space-between; margin-bottom:15px;">
+                        <span class="text-muted">К получению:</span>
+                        <span class="text-warning" id="stat-rakeback-claimable">0 ₽</span>
                     </div>
-                    <div class="stat-box card">
-                        <div class="stat-title">Всего ставок</div>
-                        <div class="stat-value text-primary" id="stat-bets">0</div>
-                    </div>
-                    <div class="stat-box card">
-                        <div class="stat-title">Макс. выигрыш</div>
-                        <div class="stat-value text-warning" id="stat-big-win">0 ₽</div>
-                    </div>
+                    <button class="btn btn-warning w-100" onclick="claimRakeback()">💸 Забрать ребэк</button>
                 </div>
 
                 <h3 class="section-subtitle">История (последние 10)</h3>
@@ -184,9 +299,11 @@
                 </div>
             </section>
 
+            <!-- ─── PROFILE PAGE ─── -->
             <section id="profile" class="page">
-                <h2 class="section-title">Настройки</h2>
-                
+                <h2 class="section-title">⚙️ Профиль</h2>
+
+                <!-- Profile -->
                 <div class="card mb-15">
                     <h3 class="section-subtitle mt-0">Профиль</h3>
                     <div class="input-group">
@@ -198,12 +315,82 @@
                     </div>
                 </div>
 
+                <!-- VIP Roadmap -->
                 <div class="card mb-15">
-                    <h3 class="section-subtitle mt-0">Система</h3>
-                    <div class="flex-row" style="justify-content: space-between; margin-bottom: 15px;">
+                    <h3 class="section-subtitle mt-0">👑 VIP Roadmap</h3>
+                    <div class="vip-tiers" id="vip-tiers">
+                        <div class="vip-tier" data-tier="bronze">
+                            <div class="tier-icon">🥉</div>
+                            <div class="tier-info">
+                                <div class="tier-name">Bronze</div>
+                                <div class="tier-req text-muted">Ур. 1+</div>
+                                <div class="tier-perk text-muted">Базовый ребэк 5%</div>
+                            </div>
+                            <div id="vip-bronze-status" class="tier-status"></div>
+                        </div>
+                        <div class="vip-tier" data-tier="silver">
+                            <div class="tier-icon">🥈</div>
+                            <div class="tier-info">
+                                <div class="tier-name rank-silver-text">Silver</div>
+                                <div class="tier-req text-muted">Ур. 5+</div>
+                                <div class="tier-perk text-muted">Ребэк 6%, бонус спин</div>
+                            </div>
+                            <div id="vip-silver-status" class="tier-status"></div>
+                        </div>
+                        <div class="vip-tier" data-tier="gold">
+                            <div class="tier-icon">🥇</div>
+                            <div class="tier-info">
+                                <div class="tier-name rank-gold-text">Gold</div>
+                                <div class="tier-req text-muted">Ур. 10+</div>
+                                <div class="tier-perk text-muted">Ребэк 7%, секрет. Mines ✕</div>
+                            </div>
+                            <div id="vip-gold-status" class="tier-status"></div>
+                        </div>
+                        <div class="vip-tier" data-tier="diamond">
+                            <div class="tier-icon">💎</div>
+                            <div class="tier-info">
+                                <div class="tier-name rank-diamond-text">Diamond</div>
+                                <div class="tier-req text-muted">Ур. 20+</div>
+                                <div class="tier-perk text-muted">Ребэк 8%, VIP Crash события</div>
+                            </div>
+                            <div id="vip-diamond-status" class="tier-status"></div>
+                        </div>
+                        <div class="vip-tier" data-tier="void">
+                            <div class="tier-icon">🌌</div>
+                            <div class="tier-info">
+                                <div class="tier-name rank-void-text">Void God</div>
+                                <div class="tier-req text-muted">Ур. 50+</div>
+                                <div class="tier-perk text-muted">Все бонусы + ребэк 10%</div>
+                            </div>
+                            <div id="vip-void-status" class="tier-status"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promo Code -->
+                <div class="card mb-15">
+                    <h3 class="section-subtitle mt-0">🎟 Промокод</h3>
+                    <div class="flex-row mt-10">
+                        <input type="text" id="promo-input" placeholder="Введите код..." style="margin-bottom:0;">
+                        <button class="btn btn-success" onclick="redeemPromo()">Активировать</button>
+                    </div>
+                    <p class="text-muted mt-10" style="font-size: 12px;">Попробуйте: VOID2026 · STAKE · LUCKY</p>
+                </div>
+
+                <!-- Settings -->
+                <div class="card mb-15">
+                    <h3 class="section-subtitle mt-0">🔧 Система</h3>
+                    <div class="flex-row setting-row">
                         <span>Звуковые эффекты</span>
                         <label class="switch">
                             <input type="checkbox" id="setting-sound" onchange="toggleSound()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex-row setting-row">
+                        <span>AMOLED тёмный режим</span>
+                        <label class="switch">
+                            <input type="checkbox" id="setting-amoled" onchange="toggleAmoled()">
                             <span class="slider round"></span>
                         </label>
                     </div>
@@ -212,6 +399,7 @@
             </section>
         </main>
 
+        <!-- ══════════════ BOTTOM NAV ══════════════ -->
         <nav class="bottom-nav">
             <div class="nav-item active" data-target="home"><div class="nav-icon">🏠</div><span>Главная</span></div>
             <div class="nav-item" data-target="crash"><div class="nav-icon">🚀</div><span>Crash</span></div>
@@ -221,6 +409,9 @@
         </nav>
     </div>
 
+    <!-- ══════════════ MODALS ══════════════ -->
+
+    <!-- Big Win Modal -->
     <div id="big-win-modal" class="modal">
         <div class="modal-content">
             <div class="modal-title pulse-anim-text">🎉 БОЛЬШОЙ ВЫИГРЫШ! 🎉</div>
@@ -230,18 +421,46 @@
         </div>
     </div>
 
+    <!-- Spin Modal -->
     <div id="lucky-spin-modal" class="modal">
         <div class="modal-content" style="text-align: center;">
             <div class="modal-title text-warning mb-10">🎡 Колесо Фортуны</div>
             <p class="text-muted mb-15" style="font-size:13px;">Крути раз в 24 часа и получай призы!</p>
-            <div class="game-display" id="spin-result" style="font-size: 32px;">🎁</div>
+            <div class="spin-wheel" id="spin-wheel-display">🎁</div>
+            <div id="spin-prizes-track" class="spin-prizes-track"></div>
+            <div id="spin-result-text" class="spin-result-text"></div>
             <button class="btn btn-warning w-100 mt-15" id="btn-spin" onclick="spinWheel()">Крутить!</button>
             <button class="btn btn-dark-btn w-100 mt-10" onclick="closeModal('lucky-spin-modal')">Закрыть</button>
         </div>
     </div>
 
+    <!-- Quest Complete Modal -->
+    <div id="quest-complete-modal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <div style="font-size:52px; margin-bottom:10px;">📋</div>
+            <div class="modal-title text-warning">Задание выполнено!</div>
+            <p id="quest-complete-desc" class="mt-10 text-muted"></p>
+            <div class="modal-amount text-warning" id="quest-complete-reward"></div>
+            <button class="btn btn-primary w-100 mt-15" onclick="closeModal('quest-complete-modal')">Получить</button>
+        </div>
+    </div>
+
+    <!-- Mines Secret Pattern Modal -->
+    <div id="mines-secret-modal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <div style="font-size:52px; margin-bottom:10px;">🔮</div>
+            <div class="modal-title text-warning">Секретный Паттерн!</div>
+            <p class="mt-10 text-muted">Ты обнаружил скрытую комбинацию! Бонус добавлен к множителю.</p>
+            <div class="modal-amount text-warning" id="mines-secret-bonus">+0.5x</div>
+            <button class="btn btn-primary w-100 mt-15" onclick="closeModal('mines-secret-modal')">Принять</button>
+        </div>
+    </div>
+
+    <!-- ══════════════ GLOBAL ELEMENTS ══════════════ -->
     <div id="toast-container" class="toast-container"></div>
     <div id="win-anim-container"></div>
+    <div id="confetti-container"></div>
+    <canvas id="confetti-canvas" style="display:none;"></canvas>
 
     <script src="script.js"></script>
 </body>
